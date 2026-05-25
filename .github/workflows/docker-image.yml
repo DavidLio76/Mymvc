@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ] # 如果你是 master，請改成 "master"
 
 jobs:
   build-and-push:
@@ -13,12 +13,9 @@ jobs:
       packages: write
 
     steps:
-    # 1. 檢出程式碼（升級至 v4，並強制使用 Node24 避免警告）
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2. 登入到 GitHub Container Registry
-    # 使用新版 v3，並明確指定用小寫儲存庫名稱避免變數抓取失敗
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -26,13 +23,10 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    # 3. 核心修正：強制轉換大寫為小寫，並提供保底的映像檔路徑
-    - name: Downcase repo name
-      run: |
-        echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
-
-    # 4. 打包並推送 Docker 映像檔
-    # 升級到 v6，並加入解決 Node20 警告的環境變數
+    # 核心修正：不使用 env 變數，直接在 tags 欄位用 github 內建語法拼接路徑
+    # ${{ github.repository_owner }} = 你的帳號
+    # ${{ github.event.repository.name }} = 你的專案名稱
+    # 這樣寫 100% 絕對不會抓到空字串
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       env:
@@ -40,4 +34,5 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ env.IMAGE_NAME }}:latest
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
