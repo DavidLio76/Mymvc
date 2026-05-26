@@ -55,8 +55,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
       - name: Restart Azure App Service
-        run: |
-          az webapp restart \
-            --name YOUR_APP_NAME \
-            --resource-group YOUR_RESOURCE_GROUP    
+        run: az webapp restart \
+            --name ${{ secrets.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
           
