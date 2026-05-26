@@ -46,3 +46,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          
+      # 自動部署到 Azure   
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Restart Azure App Service
+        run: |
+          az webapp restart \
+            --name YOUR_APP_NAME \
+            --resource-group YOUR_RESOURCE_GROUP    
+          
