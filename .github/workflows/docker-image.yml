@@ -56,7 +56,12 @@ jobs:
           
       - name: Restart Azure App Service
         run: |
+          for i in 1 2 3; do
             az webapp restart \
-            --name ${{ secrets.AZURE_WEBAPP_NAME }} \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+              --name ${{ secrets.AZURE_WEBAPP_NAME }} \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            && break || echo "第 $i 次失敗，10秒後重試..."
+            sleep 10
+          done
+          
           
